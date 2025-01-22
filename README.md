@@ -8,7 +8,6 @@ Emissor de NFe
 ### Pré-requisitos
 
 - Rust instalado. Você pode instalar o Rust a partir do [site oficial](https://www.rust-lang.org/).
-- Permissões administrativas para configurar variáveis de ambiente no Windows.
 
 ### Passos para Instalação
 
@@ -24,7 +23,7 @@ Emissor de NFe
 
     - Ao clonar o repositório perceba a pasta dfe, em thirdparty você encontra os arquivos do OPENSSL.
 
-3. Recomenda-se copiar a pasta dfe para o root do executável, pois contém os arquivos necessários para a validação de XML.
+3. Copiar a pasta dfe para o root do executável, pois contém os arquivos necessários para a validação de XML.
 
 4. Compile o projeto usando o script [build-release.bat](http://_vscodecontentref_/1):
     - O script [build-release.bat](http://_vscodecontentref_/2) define a flag `RUSTFLAGS` para compilar o binário com as DLLs estáticas e, em seguida, compila o projeto em modo release.

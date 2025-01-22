@@ -19,6 +19,7 @@ pub struct IdeApi {
     pub c_uf: u16,
     pub serie: u32,
     pub n_nf: u64,
+    pub id_dest: u8,
     pub c_mun_fg: u64,
     pub tp_emis: u8,
     pub tp_amb: u8,

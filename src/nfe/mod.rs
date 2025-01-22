@@ -47,6 +47,7 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
             c_uf: post.ide.c_uf,
             serie: post.ide.serie,
             n_nf: post.ide.n_nf,
+            id_dest: post.ide.id_dest,
             c_mun_fg: post.ide.c_mun_fg,
             tp_emis: post.ide.tp_emis,
             tp_amb: post.ide.tp_amb,
