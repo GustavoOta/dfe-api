@@ -25,3 +25,6 @@ echo     "version": "%version%", >> version.json
 echo     "author": "%author%", >> version.json
 echo     "license": "%license%" >> version.json
 echo } >> version.json
+
+@echo Compress the executable and version.json
+powershell -Command "Compress-Archive -Path dfe-api.exe, LICENSE -DestinationPath dfe-api.zip"
