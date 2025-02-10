@@ -53,6 +53,7 @@ async fn main() -> std::io::Result<()> {
             })
             .service(credits)
             .service(nfe::emitir)
+            .service(version)
     })
     .bind(("0.0.0.0", port.parse::<u16>().expect("Invalid port")))?
     .run()
@@ -67,4 +68,14 @@ async fn credits() -> impl Responder {
             + " - Versao: "
             + VERSION,
     )
+}
+
+#[get["/version"]]
+async fn version() -> impl Responder {
+    //Response with an json format
+    HttpResponse::Ok().json(Response {
+        error: 0,
+        msg: "Success".to_string(),
+        data: Some(VERSION.to_string()),
+    })
 }
