@@ -26,5 +26,8 @@ echo     "author": "%author%", >> version.json
 echo     "license": "%license%" >> version.json
 echo } >> version.json
 
+@echo Delete the old zip file if it exists
+if exist dfe-api.zip del dfe-api.zip
+
 @echo Compress the executable and version.json
 powershell -Command "Compress-Archive -Path dfe-api.exe, LICENSE -DestinationPath dfe-api.zip"
