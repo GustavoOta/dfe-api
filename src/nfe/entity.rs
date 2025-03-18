@@ -310,10 +310,10 @@ pub struct DetApi {
     // IPINT **************************
     // pub ipi_cst: Option<String>, // 01, 02, 03, 04, 05, 51, 52, 53, 54, 55
     // II **************************
-    pub ii_v_bc: Option<f32>,       // TODO: add to table
-    pub ii_v_desp_adu: Option<f32>, // TODO: add to table
-    pub ii_v_ii: Option<f32>,       // TODO: add to table
-    pub ii_v_iof: Option<f32>,      // TODO: add to table
+    pub ii_v_bc: Option<f32>,       // TODO: impl
+    pub ii_v_desp_adu: Option<f32>, // TODO: impl
+    pub ii_v_ii: Option<f32>,       // TODO: impl
+    pub ii_v_iof: Option<f32>,      // TODO: impl
     // PEDIDO
     pub x_ped: Option<String>,
     pub n_item_ped: Option<String>,
@@ -333,14 +333,14 @@ pub struct PagApi {
 }
 /*
 Implementar PISST
+Nota Fiscal eletrônica
+Manual de Orientação do Contribuinte
+Pág. 215 / 299
 287.1 R01.1 -x- Sequência XML CG R01 1-1 Informar os campos R02 e R03 para cálculo do PIS em
 percentual.
 288 R02 vBC Valor da Base de Cálculo do PIS E R01.1 N 1-1 13v2
 289 R03 pPIS Alíquota do PIS (em percentual) E R01.1 N 1-1 3v2-4
 289.1 R03.1 -x- Sequência XML CG R01 1-1 Informar os campos R04 e R05 para cálculo do PIS em valor.
-Nota Fiscal eletrônica
-Manual de Orientação do Contribuinte
-Pág. 215 / 299
 # ID Campo Descrição Ele Pai Tipo Ocor. Tam. Observação
 290 R04 qBCProd Quantidade Vendida E R031. N 1-1 12v0-4
 291 R05 vAliqProd Alíquota do PIS (em reais) E R03.1 N 1-1 11v0-4
