@@ -14,8 +14,6 @@ use serde_json::json;
 
 #[post("/nfe/emitir")]
 pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl Responder> {
-    println!("emitir function called");
-
     if req == http::Method::OPTIONS {
         return Ok(web::Json(Response {
             error: 0,
@@ -31,6 +29,7 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
             data: None,
         }));
     }
+
     let mut inf_adic_process: Option<InfAdic> = None;
     if post.inf_adic.len() > 1 {
         let inf_adic = InfAdic {
@@ -48,7 +47,7 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
             serie: post.ide.serie,
             n_nf: post.ide.n_nf,
             id_dest: post.ide.id_dest,
-            c_mun_fg: post.ide.c_mun_fg,
+            c_mun_fg: post.ide.c_mun_fg.clone(),
             tp_emis: post.ide.tp_emis,
             tp_amb: post.ide.tp_amb,
             ind_final: post.ide.ind_final,
@@ -59,14 +58,14 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
         },
         emit: Emit {
             cnpj: Some(post.emit.cnpj.clone()),
-            ie: Some(post.emit.ie),
+            ie: Some(post.emit.ie.clone()),
             crt: post.emit.crt,
             x_nome: post.emit.x_nome.clone(),
             x_fant: Some(post.emit.x_fant.clone()),
             x_lgr: post.emit.x_lgr.clone(),
             nro: post.emit.nro.clone(),
             x_bairro: post.emit.x_bairro.clone(),
-            c_mun: post.emit.c_mun,
+            c_mun: post.emit.c_mun.clone(),
             x_mun: post.emit.x_mun.clone(),
             uf: post.emit.uf.clone(),
             cep: post.emit.cep.clone(),
@@ -140,7 +139,7 @@ fn dest_builder(dest: &DestApi) -> AnyResult<Dest, AnyError> {
             x_lgr: Some(dest.x_lgr.clone()),
             nro: Some(dest.nro.clone()),
             x_bairro: Some(dest.x_bairro.clone()),
-            c_mun: Some(dest.c_mun),
+            c_mun: Some(dest.c_mun.clone()),
             x_mun: Some(dest.x_mun.clone()),
             uf: Some(dest.uf.clone()),
             cep: Some(dest.cep.clone()),
@@ -156,7 +155,7 @@ fn dest_builder(dest: &DestApi) -> AnyResult<Dest, AnyError> {
                     x_lgr: Some(dest.x_lgr.clone()),
                     nro: Some(dest.nro.clone()),
                     x_bairro: Some(dest.x_bairro.clone()),
-                    c_mun: Some(dest.c_mun),
+                    c_mun: Some(dest.c_mun.clone()),
                     x_mun: Some(dest.x_mun.clone()),
                     uf: Some(dest.uf.clone()),
                     cep: Some(dest.cep.clone()),
@@ -171,7 +170,7 @@ fn dest_builder(dest: &DestApi) -> AnyResult<Dest, AnyError> {
                     x_lgr: Some(dest.x_lgr.clone()),
                     nro: Some(dest.nro.clone()),
                     x_bairro: Some(dest.x_bairro.clone()),
-                    c_mun: Some(dest.c_mun),
+                    c_mun: Some(dest.c_mun.clone()),
                     x_mun: Some(dest.x_mun.clone()),
                     uf: Some(dest.uf.clone()),
                     cep: Some(dest.cep.clone()),
@@ -186,7 +185,7 @@ fn dest_builder(dest: &DestApi) -> AnyResult<Dest, AnyError> {
             x_lgr: Some(dest.x_lgr.clone()),
             nro: Some(dest.nro.clone()),
             x_bairro: Some(dest.x_bairro.clone()),
-            c_mun: Some(dest.c_mun),
+            c_mun: Some(dest.c_mun.clone()),
             x_mun: Some(dest.x_mun.clone()),
             uf: Some(dest.uf.clone()),
             cep: Some(dest.cep.clone()),
@@ -231,7 +230,7 @@ fn total_builder(post_det: &Vec<DetApi>) -> Total {
 
 fn det_builder(det: &DetApi) -> Det {
     //println!("{:?}", det);
-    Det {
+    let mut det_temp = Det {
         c_prod: det.c_prod.clone(),
         x_prod: det.x_prod.clone(),
         ncm: det.ncm.clone(),
@@ -245,10 +244,41 @@ fn det_builder(det: &DetApi) -> Det {
         v_un_trib: det.v_un_trib,
         ind_tot: det.ind_tot,
         icms: det.icms.clone(),
+        orig: Some(det.orig),
+        cst: Some(det.cst.clone()),
         pis: det.pis.clone(),
         cofins: det.cofins.clone(),
         ..Default::default()
+    };
+
+    // Se caso o ICMS00, ou outros deve adicionar BC e ICMS
+    match det.cst.as_str() {
+        "00" => {
+            // Se det.p_icms for none, então não é possível calcular o v_bc e p_icms
+            if det.p_icms.is_none() {
+                return det_temp;
+            }
+            if det.v_bc.is_none() {
+                return det_temp;
+            }
+            let p_icms = det
+                .p_icms
+                .expect("p_icms não pode ser None pois o CST é 00");
+            let v_bc = det.v_bc.expect("v_bc não pode ser None pois o CST é 00");
+            det_temp.mod_bc = det.mod_bc.clone();
+            det_temp.p_icms = det.p_icms;
+            det_temp.v_bc = det.v_bc;
+            let mut v_icms_multi = v_bc * p_icms / 100.0;
+            // limitar para 2 casas decimais
+            v_icms_multi = (v_icms_multi * 100.0).round() / 100.0;
+            // formatar para string com 2 casas decimais e depois converter de volta para f64
+            let v_icms_str = format!("{:.2}", v_icms_multi);
+            let v_icms = v_icms_str.parse::<f32>().unwrap();
+            det_temp.v_icms = Some(v_icms);
+        }
+        _ => {}
     }
+    return det_temp;
 }
 
 fn save_xml_file(cnpj: &str, dir: &str, chave: &str, xml: &str) -> bool {

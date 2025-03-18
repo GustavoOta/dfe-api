@@ -20,7 +20,7 @@ pub struct IdeApi {
     pub serie: u32,
     pub n_nf: u64,
     pub id_dest: u8,
-    pub c_mun_fg: u64,
+    pub c_mun_fg: String,
     pub tp_emis: u8,
     pub tp_amb: u8,
     pub ind_final: u8,
@@ -32,14 +32,14 @@ pub struct IdeApi {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmitApi {
     pub cnpj: String,
-    pub ie: u64,
+    pub ie: String,
     pub crt: u8,
     pub x_nome: String,
     pub x_fant: String,
     pub x_lgr: String,
     pub nro: String,
     pub x_bairro: String,
-    pub c_mun: u32,
+    pub c_mun: String,
     pub x_mun: String,
     pub uf: String,
     pub cep: String,
@@ -52,7 +52,7 @@ pub struct DestApi {
     pub x_lgr: String,
     pub nro: String,
     pub x_bairro: String,
-    pub c_mun: u32,
+    pub c_mun: String,
     pub x_mun: String,
     pub uf: String,
     pub cep: String,
@@ -77,6 +77,7 @@ pub struct DetApi {
     pub q_trib: f32,
     pub v_un_trib: f32,
     pub ind_tot: u8,
+
     // ICMS
     pub icms: String,
     // ICMS10 **************************
@@ -192,7 +193,7 @@ pub struct DetApi {
     pub v_icmsst_dest: Option<f32>,
     // ICMSSN101 **************************
     // pub orig: u8,
-    pub csosn: String,
+    pub csosn: Option<String>,
     pub p_cred_sn: Option<f32>,
     pub v_cred_icmssn: Option<f32>,
     // ICMSSN102 **************************

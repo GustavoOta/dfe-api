@@ -43,11 +43,11 @@ async fn main() -> std::io::Result<()> {
                     }),
             )
             .wrap_fn(|req, srv| {
-                println!("Request received: {:?}", req);
+                //println!("Request received: {:?}", req);
                 let fut = srv.call(req);
                 async {
                     let res = fut.await?;
-                    println!("Response sent: {:?}", res);
+                    //  println!("Response sent: {:?}", res);
                     Ok(res)
                 }
             })
