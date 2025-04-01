@@ -197,13 +197,29 @@ fn dest_builder(dest: &DestApi) -> AnyResult<Dest, AnyError> {
 }
 
 fn total_builder(post_det: &Vec<DetApi>) -> Total {
+    let mut v_bc = 0.0;
+    // let mut p_icms = 0.0;
+    let mut v_icms = 0.0;
     let mut v_prod = 0.0;
     for det in post_det {
+        let mut v_bc_sub = 0.0;
+        let mut p_icms_sub = 0.0;
+        if det.v_bc.is_some() {
+            v_bc += det.v_bc.unwrap_or(0.0);
+            v_bc_sub = det.v_bc.unwrap_or(0.0);
+        }
+        if det.p_icms.is_some() {
+            //p_icms += det.p_icms.unwrap_or(0.0);
+            p_icms_sub = det.p_icms.unwrap_or(0.0);
+        }
+        // calc v_icms = v_bc * p_icms
+        v_icms += v_bc_sub * p_icms_sub / 100.0;
         v_prod += det.v_prod;
     }
+
     Total {
-        v_bc: 0.0,
-        v_icms: 0.0,
+        v_bc,
+        v_icms,
         v_icms_deson: 0.0,
         v_fcpuf_dest: 0.0,
         v_icms_uf_dest: 0.0,
@@ -268,13 +284,11 @@ fn det_builder(det: &DetApi) -> Det {
             det_temp.mod_bc = det.mod_bc.clone();
             det_temp.p_icms = det.p_icms;
             det_temp.v_bc = det.v_bc;
-            let mut v_icms_multi = v_bc * p_icms / 100.0;
-            // limitar para 2 casas decimais
-            v_icms_multi = (v_icms_multi * 100.0).round() / 100.0;
-            // formatar para string com 2 casas decimais e depois converter de volta para f64
-            let v_icms_str = format!("{:.2}", v_icms_multi);
-            let v_icms = v_icms_str.parse::<f32>().unwrap();
-            det_temp.v_icms = Some(v_icms);
+            // Assumindo que v_bc e p_icms são f64
+            let v_icms_multi = v_bc * p_icms / 100.0;
+            // Limitar para 2 casas decimais
+            let v_icms_arredondado = (v_icms_multi * 100.0).round() / 100.0;
+            det_temp.v_icms = Some(v_icms_arredondado);
         }
         _ => {}
     }
