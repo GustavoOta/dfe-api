@@ -83,6 +83,7 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
             ..Default::default()
         },
         pag: Pag {
+            ind_pag: post.pag.ind_pag,
             t_pag: post.pag.t_pag.clone(),
             v_pag: post.pag.v_pag,
         },
@@ -259,11 +260,14 @@ fn det_builder(det: &DetApi) -> Det {
         q_trib: det.q_trib,
         v_un_trib: det.v_un_trib,
         ind_tot: det.ind_tot,
+        x_ped: det.x_ped.clone(),
+        n_item_ped: det.n_item_ped.clone(),
         icms: det.icms.clone(),
         orig: Some(det.orig),
         cst: Some(det.cst.clone()),
         pis: det.pis.clone(),
         cofins: det.cofins.clone(),
+        inf_ad_prod: det.inf_ad_prod.clone(),
         ..Default::default()
     };
 

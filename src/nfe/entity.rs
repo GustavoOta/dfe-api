@@ -77,6 +77,9 @@ pub struct DetApi {
     pub q_trib: f64,
     pub v_un_trib: f64,
     pub ind_tot: u8,
+    // PEDIDO
+    pub x_ped: Option<String>,
+    pub n_item_ped: Option<String>,
 
     // ICMS
     pub icms: String,
@@ -315,9 +318,6 @@ pub struct DetApi {
     pub ii_v_desp_adu: Option<f64>, // TODO: impl
     pub ii_v_ii: Option<f64>,       // TODO: impl
     pub ii_v_iof: Option<f64>,      // TODO: impl
-    // PEDIDO
-    pub x_ped: Option<String>,
-    pub n_item_ped: Option<String>,
     // PRODUTO OBS
     pub inf_ad_prod: Option<String>,
 }
@@ -329,6 +329,7 @@ pub struct TranspApi {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PagApi {
+    pub ind_pag: u8,
     pub t_pag: String,
     pub v_pag: f64,
 }
