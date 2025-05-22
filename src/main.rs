@@ -10,6 +10,8 @@ use serde::{Deserialize, Serialize};
 
 pub mod common;
 pub mod nfe;
+pub mod system;
+pub mod tests;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 

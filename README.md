@@ -1,3 +1,6 @@
+# Doações:
+[![Sponsor GustavoOta](https://img.shields.io/badge/sponsor-GustavoOta-%23EA4AAA?style=flat&logo=github)](https://github.com/sponsors/GustavoOta)
+
 # dfe-api
 Api Rest DFe 
 

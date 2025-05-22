@@ -3,3 +3,4 @@ Cargo.lock
 nfe_request.xml
 nfe_response.xml
 xml_validation_error.xml
+last_emit.xml
