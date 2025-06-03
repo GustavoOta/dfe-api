@@ -1,3 +1,4 @@
+pub mod cancelar;
 pub mod dest;
 pub mod det;
 pub mod entity;
@@ -44,6 +45,16 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
     }
 
     let det_processed: Vec<Det> = DETBuilder.process(&post.det);
+    let dest = match dest_builder(&post.dest) {
+        Ok(d) => d,
+        Err(e) => {
+            return Ok(web::Json(Response {
+                error: 1,
+                msg: format!("Erro ao montar destinatário: {:?}", e),
+                data: None,
+            }));
+        }
+    };
 
     let teste = emit(NFe {
         cert_path: post.cert_path.clone(),
@@ -77,7 +88,7 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
             cep: post.emit.cep.clone(),
             ..Default::default()
         },
-        dest: dest_builder(&post.dest).unwrap(),
+        dest,
         det: det_processed.clone(),
         total: TOTALBuilder.process(&det_processed),
         transp: Transp {
@@ -117,12 +128,26 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
             "xml": xml
         });
 
-        if !save_xml_file(&post.emit.cnpj, &post.xml_save_path, &inf_prot.ch_nfe, &xml) {
-            return Ok(web::Json(Response {
-                error: 1,
-                msg: format!("Erro ao salvar o arquivo XML em: {:?}", &post.xml_save_path),
-                data: None,
-            }));
+        match save_xml_file(&post.emit.cnpj, &post.xml_save_path, &inf_prot.ch_nfe, &xml) {
+            Ok(created_files) => {
+                if created_files.error == 1 {
+                    return Ok(web::Json(Response {
+                        error: 1,
+                        msg: format!(
+                            "Erro ao tentar salvar o XML e ou diretorios: {:?}",
+                            created_files.msg
+                        ),
+                        data: Some(response_data.to_string()),
+                    }));
+                }
+            }
+            Err(resp) => {
+                return Ok(web::Json(Response {
+                    error: 1,
+                    msg: format!("Erro ao tentar salvar o XML e ou diretorios: {:?}", resp),
+                    data: Some(response_data.to_string()),
+                }));
+            }
         }
         return Ok(web::Json(Response {
             error: 0,
@@ -199,24 +224,69 @@ fn dest_builder(dest: &DestApi) -> AnyResult<Dest, AnyError> {
     }
 }
 
-fn save_xml_file(cnpj: &str, dir: &str, chave: &str, xml: &str) -> bool {
+fn save_xml_file(
+    cnpj: &str,
+    dir: &str,
+    chave: &str,
+    xml: &str,
+) -> Result<Response, actix_web::Error> {
     // create dir save_path/cnpj if not exists
     let save_path = format!("{}/{}", dir, cnpj);
     if !std::path::Path::new(&save_path).exists() {
-        std::fs::create_dir_all(&save_path).unwrap();
+        match std::fs::create_dir_all(&save_path) {
+            Ok(_) => {}
+            Err(e) => {
+                return Ok(Response {
+                    error: 1,
+                    msg: format!("Erro ao criar o diretorio: {}, {}", &save_path, e),
+                    data: None,
+                });
+            }
+        }
     }
     // create inside dir save_path/cnpj/ another dir with the date YYYYMM if not exists
     let date = chrono::Local::now().format("%Y%m").to_string();
     let save_path = format!("{}/{}", save_path, date);
     if !std::path::Path::new(&save_path).exists() {
-        std::fs::create_dir_all(&save_path).unwrap();
+        match std::fs::create_dir_all(&save_path) {
+            Ok(_) => {}
+            Err(e) => {
+                return Ok(Response {
+                    error: 1,
+                    msg: format!("Erro ao criar o diretorio: {} {}", &save_path, e),
+                    data: None,
+                });
+            }
+        }
     }
     // create file save_path/cnpj/YYYYMM/chave.xml
     let save_path = format!("{}/{}.xml", save_path, chave);
-    std::fs::write(save_path, xml).unwrap();
+    match std::fs::write(&save_path, xml) {
+        Ok(_) => {}
+        Err(e) => {
+            return Ok(Response {
+                error: 1,
+                msg: format!("Erro ao salvar o arquivo XML: {} - {}", &save_path, e),
+                data: None,
+            });
+        }
+    }
 
     // save at root directory to view progress
-    std::fs::write("./last_emit.xml", xml).unwrap();
+    match std::fs::write("./last_emit.xml", xml) {
+        Ok(_) => {}
+        Err(e) => {
+            return Ok(Response {
+                error: 1,
+                msg: format!("Erro ao salvar o arquivo last_emit.xml: {}", e),
+                data: None,
+            });
+        }
+    }
 
-    true
+    return Ok(Response {
+        error: 0,
+        msg: format!("Diretorios gerados com sucesso"),
+        data: None,
+    });
 }
