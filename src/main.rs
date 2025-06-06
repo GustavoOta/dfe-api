@@ -90,6 +90,7 @@ async fn main() -> std::io::Result<()> {
             .service(credits)
             .service(nfe::emitir)
             .service(nfe::cancelar::process)
+            .service(nfe::tools::xml_to_json)
             .service(version)
     })
     .bind(("0.0.0.0", port.parse::<u16>().expect("Invalid port")))?

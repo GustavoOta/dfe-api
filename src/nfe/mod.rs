@@ -2,6 +2,7 @@ pub mod cancelar;
 pub mod dest;
 pub mod det;
 pub mod entity;
+pub mod tools;
 mod total;
 
 use crate::common::doc_type;
