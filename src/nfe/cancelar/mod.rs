@@ -66,10 +66,14 @@ pub async fn process(post: web::Json<ReqCancelarNFe>, req: http::Method) -> Resu
                 "Cancelamento realizado com sucesso: {} - {}",
                 inf_evento.c_stat, inf_evento.x_motivo
             ),
-            data: Some(format!(
-                "{{\"inf_evento\": {:?}, \"send_xml\": {:?}, \"receive_xml\": {:?}}}",
-                inf_evento, send_xml, receive_xml
-            )),
+            data: Some(
+                serde_json::json!({
+                    "inf_evento": inf_evento,
+                    "send_xml": send_xml,
+                    "receive_xml": receive_xml
+                })
+                .to_string(),
+            ),
         }))
     }
 }
