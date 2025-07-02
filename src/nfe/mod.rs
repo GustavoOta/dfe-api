@@ -2,6 +2,7 @@ pub mod cancelar;
 pub mod dest;
 pub mod det;
 pub mod entity;
+mod pag;
 pub mod tools;
 mod total;
 
@@ -15,6 +16,7 @@ use det::*;
 use dfe::nfe::autorizacao::emit;
 use dfe::nfe::types::autorizacao4::*;
 use entity::*;
+use pag::*;
 use serde_json::json;
 use total::*;
 
@@ -52,6 +54,17 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
             return Ok(web::Json(Response {
                 error: 1,
                 msg: format!("Erro ao montar destinatário: {:?}", e),
+                data: None,
+            }));
+        }
+    };
+
+    let pagamento = match PagBuilder.process(&post.pag) {
+        Ok(p) => p,
+        Err(e) => {
+            return Ok(web::Json(Response {
+                error: 1,
+                msg: format!("Erro ao processar a tag pagamento: {:?}", e),
                 data: None,
             }));
         }
@@ -96,65 +109,66 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
             mod_frete: post.transp.mod_frete.clone(),
             ..Default::default()
         },
-        pag: Pag {
-            ind_pag: post.pag.ind_pag,
-            t_pag: post.pag.t_pag.clone(),
-            v_pag: post.pag.v_pag,
-        },
+        pag: pagamento,
         inf_adic: inf_adic_process,
     })
     .await;
-    //println!("{:?}", teste);
-    if let Err(e) = teste {
-        return Ok(web::Json(Response {
-            error: 1,
-            msg: format!("{:?}", e),
-            data: None,
-        }));
-    } else {
-        let teste: dfe::nfe::autorizacao::Response = teste.unwrap();
-        let protocolo: dfe::nfe::autorizacao::TagInfProt = teste.protocolo;
-        let inf_prot = protocolo.inf_prot;
-        let xml = teste.xml;
 
-        let response_data = json!({
-            "protocolo": {
-                "chave": inf_prot.ch_nfe,
-                "data": inf_prot.dh_recbto,
-                "n_prot": inf_prot.n_prot,
-                "dig_val": inf_prot.dig_val,
-                "c_stat": inf_prot.c_stat,
-                "x_motivo": inf_prot.x_motivo
-            },
-            "xml": xml
-        });
+    match teste {
+        Err(e) => {
+            let msg = format!("{:?}", e); // Mostra toda a cadeia de erros
+                                          //println!("Erro ao emitir NFe: {}", msg);
+            return Ok(web::Json(Response {
+                error: 1,
+                msg,
+                data: None,
+            }));
+        }
+        Ok(teste) => {
+            let teste: dfe::nfe::autorizacao::Response = teste;
+            let protocolo: dfe::nfe::autorizacao::TagInfProt = teste.protocolo;
+            let inf_prot = protocolo.inf_prot;
+            let xml = teste.xml;
 
-        match save_xml_file(&post.emit.cnpj, &post.xml_save_path, &inf_prot.ch_nfe, &xml) {
-            Ok(created_files) => {
-                if created_files.error == 1 {
+            let response_data = json!({
+                "protocolo": {
+                    "chave": inf_prot.ch_nfe,
+                    "data": inf_prot.dh_recbto,
+                    "n_prot": inf_prot.n_prot,
+                    "dig_val": inf_prot.dig_val,
+                    "c_stat": inf_prot.c_stat,
+                    "x_motivo": inf_prot.x_motivo
+                },
+                "xml": xml
+            });
+
+            match save_xml_file(&post.emit.cnpj, &post.xml_save_path, &inf_prot.ch_nfe, &xml) {
+                Ok(created_files) => {
+                    if created_files.error == 1 {
+                        return Ok(web::Json(Response {
+                            error: 1,
+                            msg: format!(
+                                "Erro ao tentar salvar o XML e ou diretorios: {:?}",
+                                created_files.msg
+                            ),
+                            data: Some(response_data.to_string()),
+                        }));
+                    }
+                }
+                Err(resp) => {
                     return Ok(web::Json(Response {
                         error: 1,
-                        msg: format!(
-                            "Erro ao tentar salvar o XML e ou diretorios: {:?}",
-                            created_files.msg
-                        ),
+                        msg: format!("Erro ao tentar salvar o XML e ou diretorios: {:?}", resp),
                         data: Some(response_data.to_string()),
                     }));
                 }
             }
-            Err(resp) => {
-                return Ok(web::Json(Response {
-                    error: 1,
-                    msg: format!("Erro ao tentar salvar o XML e ou diretorios: {:?}", resp),
-                    data: Some(response_data.to_string()),
-                }));
-            }
+            return Ok(web::Json(Response {
+                error: 0,
+                msg: "Resposta do WebService:".to_string(),
+                data: Some(response_data.to_string()),
+            }));
         }
-        return Ok(web::Json(Response {
-            error: 0,
-            msg: "Resposta do WebService:".to_string(),
-            data: Some(response_data.to_string()),
-        }));
     }
 }
 

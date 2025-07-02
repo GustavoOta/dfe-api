@@ -72,6 +72,11 @@ pub struct PagApi {
     pub ind_pag: u8,
     pub t_pag: String,
     pub v_pag: f64,
+    pub tp_integra: Option<u8>,
+    pub cnpj: Option<String>,
+    pub t_band: Option<String>,
+    pub c_aut: Option<String>,
+    pub v_troco: Option<String>,
 }
 /*
 Implementar PISST

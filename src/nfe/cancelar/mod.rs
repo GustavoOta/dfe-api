@@ -90,10 +90,14 @@ fn response_error(inf_evento: &InfEvento) -> Option<RespCancelarNFe> {
     match c_stat {
         // Failure cases based on c_stat codes
         "573" => {
-            return error_resp("Cancelamento já realizado.", c_stat, x_motivo);
+            return error_resp("Cancelamento já foi realizado.", c_stat, x_motivo);
         }
         "155" => {
-            return error_resp("Prazo de cancelamento excedido.", c_stat, x_motivo);
+            return warning_resp(
+                "O cancelamento foi realizado, porém, com o prazo de cancelamento excedido.",
+                c_stat,
+                x_motivo,
+            );
         }
         _ => {
             return error_resp("Erro ao cancelar NF-e.", c_stat, x_motivo);
@@ -104,7 +108,15 @@ fn response_error(inf_evento: &InfEvento) -> Option<RespCancelarNFe> {
 fn error_resp(text: &str, c_stat: &str, x_motivo: &str) -> Option<RespCancelarNFe> {
     Some(RespCancelarNFe {
         error: 1,
-        msg: format!("{}: Cód[{}] - {}", text, c_stat, x_motivo),
+        msg: format!("cStat[{}]: {} - Motivo: {}", c_stat, text, x_motivo),
+        data: None,
+    })
+}
+
+fn warning_resp(text: &str, c_stat: &str, x_motivo: &str) -> Option<RespCancelarNFe> {
+    Some(RespCancelarNFe {
+        error: 0,
+        msg: format!("cStat[{}]: {} - Motivo: {}", c_stat, text, x_motivo),
         data: None,
     })
 }

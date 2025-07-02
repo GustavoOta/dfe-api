@@ -38,7 +38,10 @@ pub async fn xml_to_json(
             if result.is_err() {
                 return Ok(web::Json(RespXMLToJSON {
                     error: 1,
-                    msg: format!("Error processing XML file: {:?}", result.unwrap_err()),
+                    msg: format!(
+                        "Erro fatal: Ao tentar converter o arquivo XML para o formato JSON, o formato da estrutura do arquivo XML não é compativel com NFeProc: {:?}",
+                        result.unwrap_err()
+                    ),
                     data: None,
                 }));
             }
