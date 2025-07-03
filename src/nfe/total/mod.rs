@@ -7,6 +7,9 @@ pub trait TOTALInterface {
     fn calc_icms_v_bc(&self, det_processed: &Vec<Det>) -> f64;
     fn calc_icms_v_icms(&self, det_processed: &Vec<Det>) -> f64;
     fn calc_icms_v_prod(&self, det_processed: &Vec<Det>) -> f64;
+    // Simples Nacional
+    fn calc_icms_v_cred_icmssn(&self, det_processed: &Vec<Det>) -> f64;
+    // PIS e COFINS
     fn pis_v_pis(&self, det_processed: &Vec<Det>) -> f64;
     fn cofins_v_cofins(&self, det_processed: &Vec<Det>) -> f64;
 }
@@ -18,10 +21,13 @@ impl TOTALInterface for TOTALBuilder {
         let tot_icms_base_calculo = self.calc_icms_v_bc(&det_processed);
         let tot_icms_valor = self.calc_icms_v_icms(&det_processed);
         let tot_prod_valor = self.calc_icms_v_prod(&det_processed);
+        // Simples Nacional
+        let tot_cred_icmssn = self.calc_icms_v_cred_icmssn(&det_processed);
+        // PIS e COFINS
         let tot_pis_valor = self.pis_v_pis(&det_processed);
         let tot_cofins_valor = self.cofins_v_cofins(&det_processed);
         let tot_nota = tot_prod_valor;
-        let tot_tributado = tot_icms_valor + tot_pis_valor + tot_cofins_valor;
+        let tot_tributado = tot_icms_valor + tot_cred_icmssn + tot_pis_valor + tot_cofins_valor;
         Total {
             v_bc: tot_icms_base_calculo,
             v_icms: tot_icms_valor,
@@ -80,6 +86,16 @@ impl TOTALInterface for TOTALBuilder {
             v_prod += det.v_prod;
         }
         return v_prod;
+    }
+    // Simples Nacional
+    fn calc_icms_v_cred_icmssn(&self, det_processed: &Vec<Det>) -> f64 {
+        let mut v_cred_icmssn = 0.0;
+        for det in det_processed {
+            if det.v_cred_icmssn.is_some() {
+                v_cred_icmssn += det.v_cred_icmssn.unwrap();
+            }
+        }
+        return v_cred_icmssn;
     }
     fn pis_v_pis(&self, det_processed: &Vec<Det>) -> f64 {
         let mut pis_v_pis = 0.0;

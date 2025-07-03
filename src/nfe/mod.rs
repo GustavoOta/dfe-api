@@ -207,6 +207,18 @@ fn dest_builder(dest: &DestApi) -> AnyResult<Dest, AnyError> {
                     ..Default::default()
                 })
             } else {
+                // remover caracteres especiais e espaços da inscricao estadual
+                let ie = dest.ie.as_ref().map(|s| {
+                    s.replace(".", "")
+                        .replace("/", "")
+                        .replace("-", "")
+                        .replace(" ", "")
+                });
+                if ie.is_none() || ie.as_ref().unwrap().is_empty() {
+                    return Err(AnyError::msg(
+                        "Inscrição Estadual não informada ou inválida.",
+                    ));
+                }
                 Ok(Dest {
                     cnpj: Some(dest.doc.clone()),
                     x_nome: Some(dest.x_nome.clone()),
@@ -218,7 +230,7 @@ fn dest_builder(dest: &DestApi) -> AnyResult<Dest, AnyError> {
                     uf: Some(dest.uf.clone()),
                     cep: Some(dest.cep.clone()),
                     ind_ie_dest: Some(dest.ind_ie_dest),
-                    ie: dest.ie.clone(),
+                    ie: ie,
                     ..Default::default()
                 })
             }

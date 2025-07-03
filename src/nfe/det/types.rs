@@ -24,7 +24,7 @@ pub struct DetApi {
     pub icms: String,
     // ICMS10 **************************
     pub orig: u8,
-    pub cst: String,
+    pub cst: Option<String>,
     pub mod_bc: Option<u8>,
     pub v_bc: Option<f64>,
     pub p_icms: Option<f64>,
@@ -192,6 +192,7 @@ pub struct DetApi {
     pub pis_cst: Option<String>, // 01, 02
     pub pis_v_bc: Option<f64>,
     pub pis_p_pis: Option<f64>,
+    pub pis_v_pis: Option<f64>,
     // PISQtde **************************
     // pub pis_cst: Option<String>, // 03
     pub pis_q_bc_prod: Option<f64>,
@@ -216,6 +217,7 @@ pub struct DetApi {
     pub cofins_cst: Option<String>, // 01, 02
     pub cofins_v_bc: Option<f64>,
     pub cofins_p_cofins: Option<f64>,
+    pub cofins_v_cofins: Option<f64>,
     // COFINSQtde **************************
     // pub cofins_cst: Option<String>, // 03
     pub cofins_q_bc_prod: Option<f64>,

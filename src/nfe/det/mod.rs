@@ -58,9 +58,22 @@ impl DETInterface for DETBuilder {
             n_item_ped: det.n_item_ped.clone(),
             icms: det.icms.clone(),
             orig: Some(det.orig),
-            cst: Some(det.cst.clone()),
+            cst: det.cst.clone(),
+            csosn: det.csosn.clone(),
             pis: det.pis.clone(),
+            pis_cst: det.pis_cst.clone(),
+            pis_v_bc: det.pis_v_bc,
+            pis_p_pis: det.pis_p_pis,
+            pis_v_pis: det.pis_v_pis,
+            pis_q_bc_prod: det.pis_q_bc_prod,
+            pis_v_aliq_prod: det.pis_v_aliq_prod,
             cofins: det.cofins.clone(),
+            cofins_cst: det.cofins_cst.clone(),
+            cofins_v_bc: det.cofins_v_bc,
+            cofins_p_cofins: det.cofins_p_cofins,
+            cofins_v_cofins: det.cofins_v_cofins,
+            cofins_q_bc_prod: det.cofins_q_bc_prod,
+            cofins_v_aliq_prod: det.cofins_v_aliq_prod,
             inf_ad_prod: det.inf_ad_prod.clone(),
             ..Default::default()
         };
@@ -71,6 +84,9 @@ impl DETInterface for DETBuilder {
         let tot_pis_valor = det_temp.pis_v_pis.unwrap_or(0.0);
         let tot_cofins_valor = det_temp.cofins_v_cofins.unwrap_or(0.0);
 
-        det_temp.v_tot_trib = tot_icms_valor + tot_pis_valor + tot_cofins_valor;
+        // Simples Nacional
+        let tot_v_cred_icmssn = det_temp.v_cred_icmssn.unwrap_or(0.0);
+
+        det_temp.v_tot_trib = tot_icms_valor + tot_pis_valor + tot_cofins_valor + tot_v_cred_icmssn;
     }
 }

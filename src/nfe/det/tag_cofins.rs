@@ -29,7 +29,7 @@ pub fn cofins_by_cst(det_temp: &mut Det, det: &DetApi) {
                 }
             }
         }
-        // Adicione outros PIS CSTs aqui conforme necessário
+        // Adicione outros COFINS CSTs aqui conforme necessário
         _ => {}
     }
 }
