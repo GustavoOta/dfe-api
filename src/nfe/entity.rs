@@ -1,18 +1,21 @@
 use crate::nfe::det::types::DetApi;
+use crate::nfe::transp::TranspApi;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NFeApi {
     pub cert_path: String,
     pub cert_pass: String,
+    pub id_csc: Option<String>,
+    pub csc: Option<String>,
     pub xml_save_path: String,
     pub ide: IdeApi,
     pub emit: EmitApi,
-    pub dest: DestApi,
+    pub dest: Option<DestApi>,
     pub det: Vec<DetApi>,
-    pub transp: TranspApi,
+    pub transp: Option<TranspApi>,
     pub pag: PagApi,
-    pub inf_adic: String,
+    pub inf_adic: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -48,23 +51,28 @@ pub struct EmitApi {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DestApi {
-    pub doc: String,
-    pub x_nome: String,
-    pub x_lgr: String,
-    pub nro: String,
-    pub x_bairro: String,
-    pub c_mun: String,
-    pub x_mun: String,
-    pub uf: String,
-    pub cep: String,
-    pub ind_ie_dest: u8,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub doc: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub x_nome: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub x_lgr: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nro: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub x_bairro: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub c_mun: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub x_mun: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub uf: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cep: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ind_ie_dest: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ie: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TranspApi {
-    pub mod_frete: u8,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

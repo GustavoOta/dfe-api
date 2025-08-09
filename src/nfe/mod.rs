@@ -5,13 +5,13 @@ pub mod entity;
 mod pag;
 pub mod tools;
 mod total;
+pub mod transp;
 
-use crate::common::doc_type;
 use crate::Response;
 use actix_web::http;
 use actix_web::{post, web, Responder, Result};
-use anyhow::Error as AnyError;
-use anyhow::Result as AnyResult;
+
+use dest::*;
 use det::*;
 use dfe::nfe::autorizacao::emit;
 use dfe::nfe::types::autorizacao4::*;
@@ -19,6 +19,7 @@ use entity::*;
 use pag::*;
 use serde_json::json;
 use total::*;
+use transp::*;
 
 #[post("/nfe/emitir")]
 pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl Responder> {
@@ -38,26 +39,20 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
         }));
     }
 
-    let mut inf_adic_process: Option<InfAdic> = None;
-    if post.inf_adic.len() > 1 {
-        let inf_adic = InfAdic {
-            inf_cpl: Some(post.inf_adic.clone()),
-            inf_ad_fisco: None,
-        };
-        inf_adic_process = Some(inf_adic);
-    }
+    let inf_adic_process = if let Some(inf_adic) = &post.inf_adic {
+        if inf_adic.len() > 1 {
+            Some(InfAdic {
+                inf_cpl: Some(inf_adic.clone()),
+                inf_ad_fisco: None,
+            })
+        } else {
+            None
+        }
+    } else {
+        None
+    };
 
     let det_processed: Vec<Det> = DETBuilder.process(&post.det);
-    let dest = match dest_builder(&post.dest) {
-        Ok(d) => d,
-        Err(e) => {
-            return Ok(web::Json(Response {
-                error: 1,
-                msg: format!("Erro ao montar destinatário: {:?}", e),
-                data: None,
-            }));
-        }
-    };
 
     let pagamento = match PagBuilder.process(&post.pag) {
         Ok(p) => p,
@@ -73,6 +68,8 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
     let teste = emit(NFe {
         cert_path: post.cert_path.clone(),
         cert_pass: post.cert_pass.clone(),
+        id_csc: post.id_csc.clone(),
+        csc: post.csc.clone(),
         ide: Ide {
             c_uf: post.ide.c_uf,
             serie: post.ide.serie,
@@ -102,13 +99,10 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
             cep: post.emit.cep.clone(),
             ..Default::default()
         },
-        dest,
+        dest: DestAPIBuilder::process(post.dest.clone()),
         det: det_processed.clone(),
         total: TOTALBuilder.process(&det_processed),
-        transp: Transp {
-            mod_frete: post.transp.mod_frete.clone(),
-            ..Default::default()
-        },
+        transp: TranspBuilder::process(post.transp.clone()),
         pag: pagamento,
         inf_adic: inf_adic_process,
     })
@@ -169,85 +163,6 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
                 data: Some(response_data.to_string()),
             }));
         }
-    }
-}
-
-fn dest_builder(dest: &DestApi) -> AnyResult<Dest, AnyError> {
-    let doc_type = doc_type(&dest.doc);
-
-    match doc_type.as_str() {
-        "CPF" => Ok(Dest {
-            cpf: Some(dest.doc.clone()),
-            x_nome: Some(dest.x_nome.clone()),
-            x_lgr: Some(dest.x_lgr.clone()),
-            nro: Some(dest.nro.clone()),
-            x_bairro: Some(dest.x_bairro.clone()),
-            c_mun: Some(dest.c_mun.clone()),
-            x_mun: Some(dest.x_mun.clone()),
-            uf: Some(dest.uf.clone()),
-            cep: Some(dest.cep.clone()),
-            ind_ie_dest: Some(dest.ind_ie_dest),
-            ..Default::default()
-        }),
-
-        "CNPJ" => {
-            if dest.ind_ie_dest == 9 || dest.ind_ie_dest == 2 {
-                Ok(Dest {
-                    cnpj: Some(dest.doc.clone()),
-                    x_nome: Some(dest.x_nome.clone()),
-                    x_lgr: Some(dest.x_lgr.clone()),
-                    nro: Some(dest.nro.clone()),
-                    x_bairro: Some(dest.x_bairro.clone()),
-                    c_mun: Some(dest.c_mun.clone()),
-                    x_mun: Some(dest.x_mun.clone()),
-                    uf: Some(dest.uf.clone()),
-                    cep: Some(dest.cep.clone()),
-                    ind_ie_dest: Some(dest.ind_ie_dest),
-                    ie: None,
-                    ..Default::default()
-                })
-            } else {
-                // remover caracteres especiais e espaços da inscricao estadual
-                let ie = dest.ie.as_ref().map(|s| {
-                    s.replace(".", "")
-                        .replace("/", "")
-                        .replace("-", "")
-                        .replace(" ", "")
-                });
-                if ie.is_none() || ie.as_ref().unwrap().is_empty() {
-                    return Err(AnyError::msg(
-                        "Inscrição Estadual não informada ou inválida.",
-                    ));
-                }
-                Ok(Dest {
-                    cnpj: Some(dest.doc.clone()),
-                    x_nome: Some(dest.x_nome.clone()),
-                    x_lgr: Some(dest.x_lgr.clone()),
-                    nro: Some(dest.nro.clone()),
-                    x_bairro: Some(dest.x_bairro.clone()),
-                    c_mun: Some(dest.c_mun.clone()),
-                    x_mun: Some(dest.x_mun.clone()),
-                    uf: Some(dest.uf.clone()),
-                    cep: Some(dest.cep.clone()),
-                    ind_ie_dest: Some(dest.ind_ie_dest),
-                    ie: ie,
-                    ..Default::default()
-                })
-            }
-        }
-        "ESTRANGEIRO" => Ok(Dest {
-            x_nome: Some(dest.x_nome.clone()),
-            x_lgr: Some(dest.x_lgr.clone()),
-            nro: Some(dest.nro.clone()),
-            x_bairro: Some(dest.x_bairro.clone()),
-            c_mun: Some(dest.c_mun.clone()),
-            x_mun: Some(dest.x_mun.clone()),
-            uf: Some(dest.uf.clone()),
-            cep: Some(dest.cep.clone()),
-            ind_ie_dest: Some(dest.ind_ie_dest),
-            ..Default::default()
-        }),
-        _ => Err(AnyError::msg("Tipo de documento não suportado.")),
     }
 }
 
