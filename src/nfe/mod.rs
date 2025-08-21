@@ -6,6 +6,7 @@ mod pag;
 pub mod tools;
 mod total;
 pub mod transp;
+pub mod validation;
 
 use crate::Response;
 use actix_web::http;
@@ -20,6 +21,7 @@ use pag::*;
 use serde_json::json;
 use total::*;
 use transp::*;
+use validation::FieldsValidation;
 
 #[post("/nfe/emitir")]
 pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl Responder> {
@@ -37,6 +39,17 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
             msg: "Método de requisição não permitido.".to_string(),
             data: None,
         }));
+    }
+
+    match FieldsValidation::request(&post) {
+        Ok(()) => {}
+        Err(e) => {
+            return Ok(web::Json(Response {
+                error: 1,
+                msg: format!("DFE-API | Erro de validação: |{}", e),
+                data: None,
+            }));
+        }
     }
 
     let inf_adic_process = if let Some(inf_adic) = &post.inf_adic {

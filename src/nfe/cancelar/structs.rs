@@ -5,6 +5,7 @@ pub struct ReqCancelarNFe {
     pub cert_path: String,
     pub cert_pass: String,
     pub tp_amb: u8,
+    pub mod_: Option<u32>,
     pub chave: String,
     pub protocolo: String,
     pub justificativa: String,

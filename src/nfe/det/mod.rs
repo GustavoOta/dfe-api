@@ -41,11 +41,14 @@ impl DETInterface for DETBuilder {
     }
 
     fn det_produtos(&self, det: &DetApi) -> Det {
+        let ncm = det.ncm.clone().unwrap_or("ncm não enviado".to_string());
+        let cfop = det.cfop.clone().unwrap_or(0);
+
         let det_temp = Det {
             c_prod: det.c_prod.clone(),
             x_prod: det.x_prod.clone(),
-            ncm: det.ncm.clone(),
-            cfop: det.cfop.clone(),
+            ncm,
+            cfop,
             u_com: det.u_com.clone(),
             q_com: det.q_com,
             v_un_com: det.v_un_com,

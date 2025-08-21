@@ -32,6 +32,7 @@ pub async fn process(post: web::Json<ReqCancelarNFe>, req: http::Method) -> Resu
         cert_path: post.cert_path.clone(),
         cert_pass: post.cert_pass.clone(),
         tp_amb: post.tp_amb,
+        mod_: post.mod_.clone(),
         chave: post.chave.clone(),
         protocolo: post.protocolo.clone(),
         justificativa: post.justificativa.clone(),
