@@ -13,6 +13,7 @@ impl PagInterface for PagBuilder {
         Ok(PagResponse {
             ind_pag: pag.ind_pag,
             t_pag: pag.t_pag.clone(),
+            x_pag: pag.x_pag.clone(),
             v_pag: pag.v_pag,
             tp_integra: pag.tp_integra,
             cnpj: pag.cnpj.clone(),
