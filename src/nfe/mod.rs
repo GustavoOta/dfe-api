@@ -16,6 +16,7 @@ use dest::*;
 use det::*;
 use dfe::nfe::autorizacao::emit;
 use dfe::nfe::types::autorizacao4::*;
+use dfe::nfe::xml_rules::ide::models::Ide;
 use entity::*;
 use pag::*;
 use serde_json::json;
@@ -112,7 +113,7 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
             cep: post.emit.cep.clone(),
             ..Default::default()
         },
-        dest: DestAPIBuilder::process(post.dest.clone()),
+        dest: DestAPIBuilder::process(post.dest.clone(), post.ide.mod_),
         det: det_processed.clone(),
         total: TOTALBuilder.process(&det_processed),
         transp: TranspBuilder::process(post.transp.clone()),
