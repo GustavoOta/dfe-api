@@ -34,6 +34,7 @@ impl DETInterface for DETBuilder {
                 self.icms_by_cst(&mut det_temp, det);
                 self.pis_by_cst(&mut det_temp, det);
                 self.cofins_by_cst(&mut det_temp, det);
+
                 self.v_tot_trib(&mut det_temp);
                 det_temp
             })
