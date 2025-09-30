@@ -1,3 +1,4 @@
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -261,4 +262,14 @@ pub struct DetApi {
     pub ii_v_iof: Option<f64>,      // TODO: impl
     // PRODUTO OBS
     pub inf_ad_prod: Option<String>,
+    /// IBS e CBS *************************************
+    pub ibs_cbs_cst: String, // N3 EX: "000"
+    pub ibs_cbs_class_trib: String, //N6 EX: "000001"
+    pub ibs_cbs_v_bc: Decimal,      // EX: 100.00
+    pub p_ibs_uf: Decimal,          // EX: 0.90
+    pub v_ibs_uf: Decimal,          // EX: 90.00
+    pub p_ibs_mun: Decimal,         // EX: 0.00
+    pub v_ibs_mun: Decimal,         // EX: 0.00
+    pub p_cbs: Decimal,             // EX: 0.10
+    pub v_cbs: Decimal,             // EX: 10.00
 }

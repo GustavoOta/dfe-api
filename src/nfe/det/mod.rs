@@ -8,6 +8,8 @@ use super::tag_icms::icms_by_cst;
 use super::tag_pis::pis_by_cst;
 use dfe::nfe::types::autorizacao4::Det;
 use types::*;
+pub mod tag_ibs_cbs;
+use tag_ibs_cbs::IbsCbs;
 
 pub trait DETInterface {
     fn process(&self, dets: &[DetApi]) -> Vec<Det>;
@@ -34,7 +36,7 @@ impl DETInterface for DETBuilder {
                 self.icms_by_cst(&mut det_temp, det);
                 self.pis_by_cst(&mut det_temp, det);
                 self.cofins_by_cst(&mut det_temp, det);
-
+                IbsCbs::build(&mut det_temp, det);
                 self.v_tot_trib(&mut det_temp);
                 det_temp
             })

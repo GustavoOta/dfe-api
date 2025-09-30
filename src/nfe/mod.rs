@@ -125,7 +125,7 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
     match teste {
         Err(e) => {
             let msg = format!("{:?}", e); // Mostra toda a cadeia de erros
-                                          //println!("Erro ao emitir NFe: {}", msg);
+            println!("Erro ao emitir NFe: {}", msg);
             return Ok(web::Json(Response {
                 error: 1,
                 msg,
