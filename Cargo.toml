@@ -1,6 +1,6 @@
 [package]
 name = "dfe-api"
-version = "0.2.5"
+version = "0.2.6"
 authors = ["Gustavo Ota<gustavo@gravis.com.br>"]
 description = "DFe API REST para Documentos Fiscais Eletronicos"
 license-file = "LICENSE.txt"
@@ -26,7 +26,7 @@ actix-cors = "0.7.0"
 actix-web = "4.9.0"
 anyhow = "1.0.95"
 chrono = "0.4.39"
-# dfe = "0.4.4"
+# dfe = "0.4.8"
 dfe = { path = "../dfe" }
 rust_decimal = "1.37.1"
 serde = { version = "1.0.216", features = ["derive"] }
