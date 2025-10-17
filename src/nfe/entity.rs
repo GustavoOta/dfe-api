@@ -16,6 +16,7 @@ pub struct NFeApi {
     pub transp: Option<TranspApi>,
     pub pag: PagApi,
     pub inf_adic: Option<String>,
+    pub active_ibs_cbs: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

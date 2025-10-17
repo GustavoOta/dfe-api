@@ -55,6 +55,28 @@ pub fn icms_by_cst(det_temp: &mut Det, det: &DetApi) {
                 det_temp.csosn = Some("ICMSSN CSOSN não enviado".to_string());
             }
         },
+        "ICMSSN500" => match det.csosn.as_deref() {
+            Some("500") => {
+                // ICMSSN500 pode ter campos adicionais
+            }
+            Some(csosn) => {
+                det_temp.csosn = Some(format!("CSOSN[{}] para ICMSSN500 inválido", csosn));
+            }
+            None => {
+                det_temp.csosn = Some("ICMSSN CSOSN não enviado".to_string());
+            }
+        },
+        "ICMSSN900" => match det.csosn.as_deref() {
+            Some("900") => {
+                // ICMSSN900 pode ter campos adicionais
+            }
+            Some(csosn) => {
+                det_temp.csosn = Some(format!("CSOSN[{}] para ICMSSN900 inválido", csosn));
+            }
+            None => {
+                det_temp.csosn = Some("ICMSSN CSOSN não enviado".to_string());
+            }
+        },
         // Adicione outros ICMS tipos aqui conforme necessário
         _ => {}
     }

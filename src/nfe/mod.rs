@@ -119,6 +119,7 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
         transp: TranspBuilder::process(post.transp.clone()),
         pag: pagamento,
         inf_adic: inf_adic_process,
+        active_ibs_cbs: post.active_ibs_cbs.clone(),
     })
     .await;
 
