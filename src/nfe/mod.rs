@@ -68,7 +68,7 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
 
     let det_processed: Vec<Det> = DETBuilder.process(&post.det);
 
-    let pagamento = match PagBuilder.process(&post.pag) {
+    let pagamento = match PagBuilder.process(&post.pag, &post.desconto_rateio) {
         Ok(p) => p,
         Err(e) => {
             return Ok(web::Json(Response {
@@ -115,11 +115,13 @@ pub async fn emitir(post: web::Json<NFeApi>, req: http::Method) -> Result<impl R
         },
         dest: DestAPIBuilder::process(post.dest.clone(), post.ide.mod_),
         det: det_processed.clone(),
-        total: TOTALBuilder.process(&det_processed),
+        total: TOTALBuilder.process(&det_processed, &post.desconto_rateio),
         transp: TranspBuilder::process(post.transp.clone()),
         pag: pagamento,
         inf_adic: inf_adic_process,
         active_ibs_cbs: post.active_ibs_cbs.clone(),
+        desconto_rateio: post.desconto_rateio.clone(),
+        acrescimo_rateio: post.acrescimo_rateio.clone(),
     })
     .await;
 

@@ -17,6 +17,8 @@ pub struct NFeApi {
     pub pag: PagApi,
     pub inf_adic: Option<String>,
     pub active_ibs_cbs: Option<String>,
+    pub desconto_rateio: Option<rust_decimal::Decimal>,
+    pub acrescimo_rateio: Option<rust_decimal::Decimal>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

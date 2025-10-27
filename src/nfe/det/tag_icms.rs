@@ -1,5 +1,5 @@
 use super::types::*;
-use crate::system::{Gravis, GravisInterface};
+use crate::system::Gravis;
 use dfe::nfe::types::autorizacao4::Det;
 
 // Recebe a variavel det_temp que é mutavel por referencia então
