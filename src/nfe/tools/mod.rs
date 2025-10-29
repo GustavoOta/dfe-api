@@ -1,5 +1,5 @@
 use actix_web::http;
-use actix_web::{get, post, web, Responder, Result};
+use actix_web::{post, web, Responder, Result};
 use dfe::nfe::common::cert::CertificateInfo;
 use dfe::nfe::xml_extractor::structs::*;
 use dfe::nfe::xml_extractor::*;
@@ -89,9 +89,9 @@ pub async fn xml_to_json(
     }
 }
 
-#[get("/nfe/tools/certificate-info")]
+#[post("/nfe/tools/certificate-info")]
 pub async fn certificate_info(
-    post: web::Query<ReqCertificateInfo>,
+    post: web::Json<ReqCertificateInfo>,
     req: http::Method,
 ) -> Result<impl Responder> {
     if req == http::Method::OPTIONS {
@@ -102,7 +102,7 @@ pub async fn certificate_info(
         }));
     }
 
-    if req != http::Method::GET {
+    if req != http::Method::POST {
         return Ok(web::Json(RespCertificateInfo {
             error: 1,
             msg: "Método de requisição não permitido.".to_string(),

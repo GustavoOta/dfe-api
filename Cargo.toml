@@ -1,6 +1,6 @@
 [package]
 name = "dfe-api"
-version = "0.2.7"
+version = "0.2.8"
 authors = ["Gustavo Ota<gustavo@gravis.com.br>"]
 description = "DFe API REST para Documentos Fiscais Eletronicos"
 license-file = "LICENSE.txt"
