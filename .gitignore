@@ -4,4 +4,3 @@ Cargo.lock
 *.xml
 *.log
 *.env
-version.json
