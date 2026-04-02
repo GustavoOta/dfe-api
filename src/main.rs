@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 
 pub mod common;
 pub mod nfe;
+pub mod pdf;
 pub mod system;
 pub mod tests;
 
@@ -40,6 +41,7 @@ async fn main() -> std::io::Result<()> {
             .service(nfe::cancelar::process)
             .service(nfe::tools::xml_to_json)
             .service(nfe::tools::certificate_info)
+            .configure(pdf::config)
             .service(version)
     })
     .bind(("0.0.0.0", port.parse::<u16>().expect("Invalid port")))?
