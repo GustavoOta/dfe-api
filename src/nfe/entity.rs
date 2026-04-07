@@ -1,5 +1,6 @@
 use crate::nfe::det::types::DetApi;
 use crate::nfe::transp::TranspApi;
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -88,7 +89,7 @@ pub struct PagApi {
     pub cnpj: Option<String>,
     pub t_band: Option<String>,
     pub c_aut: Option<String>,
-    pub v_troco: Option<String>,
+    pub v_troco: Option<Decimal>,
 }
 /*
 Implementar PISST

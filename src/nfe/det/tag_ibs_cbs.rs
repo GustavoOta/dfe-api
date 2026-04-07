@@ -1,5 +1,6 @@
 use super::types::*;
 use dfe::nfe::types::autorizacao4::Det;
+use rust_decimal::Decimal;
 
 pub struct IbsCbs;
 impl IbsCbs {
@@ -17,10 +18,12 @@ impl IbsCbs {
         det_temp.ibs_cbs_class_trib = det.ibs_cbs_class_trib.clone();
         det_temp.ibs_cbs_v_bc = det.ibs_cbs_v_bc;
         det_temp.p_ibs_uf = det.p_ibs_uf;
-        det_temp.v_ibs_uf = det.v_ibs_uf;
         det_temp.p_ibs_mun = det.p_ibs_mun;
-        det_temp.v_ibs_mun = det.v_ibs_mun;
         det_temp.p_cbs = det.p_cbs;
-        det_temp.v_cbs = det.v_cbs;
+
+        let hundred = Decimal::new(100, 0);
+        det_temp.v_ibs_uf = (det.ibs_cbs_v_bc * det.p_ibs_uf / hundred).round_dp(2);
+        det_temp.v_ibs_mun = (det.ibs_cbs_v_bc * det.p_ibs_mun / hundred).round_dp(2);
+        det_temp.v_cbs = (det.ibs_cbs_v_bc * det.p_cbs / hundred).round_dp(2);
     }
 }
