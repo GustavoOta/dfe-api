@@ -8,6 +8,7 @@ use actix_web::{get, App, HttpResponse, HttpServer, Responder};
 use serde::{Deserialize, Serialize};
 
 pub mod common;
+pub mod distribuicao;
 pub mod nfe;
 pub mod pdf;
 pub mod system;
@@ -42,6 +43,7 @@ async fn main() -> std::io::Result<()> {
             .service(nfe::tools::xml_to_json)
             .service(nfe::tools::certificate_info)
             .configure(pdf::config)
+            .configure(distribuicao::config)
             .service(version)
     })
     .bind(("0.0.0.0", port.parse::<u16>().expect("Invalid port")))?
