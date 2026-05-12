@@ -62,3 +62,94 @@ Emissor de NFe
     ```
 
 Se tudo estiver configurado corretamente, o `dfe-api` estará pronto para uso.
+
+---
+
+## Endpoints
+
+### Distribuição de DFe (Manifestação do Destinatário)
+
+Base path: `/distribuicao`
+
+---
+
+#### POST `/distribuicao/ciencia-operacao`
+
+Registra o evento de **Ciência da Operação** (tpEvento `210210`) para uma NF-e no Ambiente Nacional da SEFAZ.
+
+Indica que o destinatário tem ciência da existência da NF-e, mas ainda não confirmou nem desconheceu a operação.
+
+**Request Body** (`application/json`):
+
+```json
+{
+  "cert_path": "C:/certificados/empresa.pfx",
+  "cert_pass": "senha_do_certificado",
+  "cnpj": "10868122000158",
+  "ambiente": 2,
+  "chave_acesso": "35260402084385000148550010008921991199917393"
+}
+```
+
+| Campo          | Tipo     | Descrição                                                     |
+| -------------- | -------- | ------------------------------------------------------------- |
+| `cert_path`    | `string` | Caminho absoluto para o arquivo `.pfx` do certificado digital |
+| `cert_pass`    | `string` | Senha do certificado `.pfx`                                   |
+| `cnpj`         | `string` | CNPJ do destinatário (apenas dígitos)                         |
+| `ambiente`     | `number` | `1` = Produção, `2` = Homologação                             |
+| `chave_acesso` | `string` | Chave de acesso da NF-e (44 dígitos)                          |
+
+**Response — Sucesso:**
+
+```json
+{
+  "error": 0,
+  "msg": "Ciência da operação enviada com sucesso",
+  "data": {
+    "response": {
+      "tp_amb": "2",
+      "ver_aplic": "AN_1.9.0",
+      "c_orgao": "91",
+      "c_stat": "135",
+      "x_motivo": "Evento registrado e vinculado a NF-e",
+      "ch_nfe": "35260402084385000148550010008921991199917393",
+      "tp_evento": "210210",
+      "n_seq_evento": "1",
+      "dh_reg_evento": "2026-04-14T10:16:21-03:00",
+      "x_evento": "Ciencia da Operacao",
+      "cnpj_dest": "10868122000158",
+      "n_prot": "891260002352208"
+    },
+    "send_xml": "...",
+    "receive_xml": "..."
+  }
+}
+```
+
+| Campo          | Descrição                                                                                     |
+| -------------- | --------------------------------------------------------------------------------------------- |
+| `c_stat`       | `135` = registrado e vinculado à NF-e; `136` = registrado mas NF-e ainda não localizada no AN |
+| `n_prot`       | Número do protocolo SEFAZ — recomenda-se persistir para rastreabilidade                       |
+| `cnpj_dest`    | CNPJ do destinatário confirmado pelo Ambiente Nacional                                        |
+| `n_seq_evento` | Sempre `1` para Ciência da Operação                                                           |
+| `send_xml`     | Envelope SOAP enviado à SEFAZ                                                                 |
+| `receive_xml`  | Envelope SOAP recebido da SEFAZ                                                               |
+
+**Response — Erro:**
+
+```json
+{
+  "error": 1,
+  "msg": "Erro ao enviar ciência da operação: <detalhe do erro>",
+  "data": null
+}
+```
+
+**Logs gerados** (em `./distribuicao-logs/`):
+
+```
+requests/{cnpj}/{ano}/{mes}/ciencia-da-operacao-HH-MM-SS-inf-evento.xml
+requests/{cnpj}/{ano}/{mes}/ciencia-da-operacao-HH-MM-SS-envio.xml
+responses/{cnpj}/{ano}/{mes}/ciencia-da-operacao-HH-MM-SS-resposta.xml
+errors/{cnpj}/{ano}/{mes}/ciencia-da-operacao-HH-MM-SS-erro.txt  ← apenas em caso de falha
+```
